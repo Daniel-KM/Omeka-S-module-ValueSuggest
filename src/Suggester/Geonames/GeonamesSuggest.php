@@ -26,7 +26,7 @@ class GeonamesSuggest implements SuggesterInterface
      */
     public function getSuggestions($query, $lang = null)
     {
-        $params = ['q' => $query, 'maxRows' => 100, 'username' => 'kdlinfo'];
+        $params = ['q' => $query, 'maxRows' => 1000, 'username' => 'kdlinfo'];
         if ($lang) {
             // Geonames requires an ISO-639 2-letter language code. Remove the
             // first underscore and anything after it ("zh_CN" becomes "zh").
