@@ -21,15 +21,22 @@ class IdRefSuggestAll implements SuggesterInterface
     /**
      * @var string
      */
+    protected $dataType;
+
+    /**
+     * @var string
+     */
     protected $url;
 
     public function __construct(
         Client $client,
         Connection $connection,
+        string $dataType,
         string $url
     ) {
         $this->client = $client;
         $this->connection = $connection;
+        $this->dataType = $dataType;
         $this->url = $url;
     }
 
@@ -98,6 +105,19 @@ SQL;
         $totals = $this->connection->executeQuery($sql, ['uris' => array_keys($uris)], ['uris' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY])->fetchAllKeyValue();
 
         $uris = array_replace($uris, array_map('intval', $totals));
+
+        if ($this->dataType === 'valuesuggest:idref:subject' || $this->dataType === 'valuesuggest:idref:rameau') {
+            $main = [];
+            $sub = [];
+            foreach ($values as $uri => $value) {
+                if (mb_strpos($value, ' -- ')) {
+                    $sub[$uri] = $uris[$uri];
+                } else {
+                    $main[$uri] = $uris[$uri];
+                }
+            }
+            $uris = $main + $sub;
+        }
 
         $suggestions = [];
         foreach ($uris as $uri => $count) {

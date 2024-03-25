@@ -4,21 +4,21 @@ namespace ValueSuggest\DataType\IdRef;
 use ValueSuggest\DataType\AbstractDataType;
 use ValueSuggest\Suggester\IdRef\IdRefSuggestAll;
 
-class Idref extends AbstractDataType
+class IdRef extends AbstractDataType
 {
-    protected $idrefName;
-    protected $idrefLabel;
+    protected $dataType;
+    protected $dataTypeLabel;
     protected $idrefUrl;
 
-    public function setIdrefName($idrefName)
+    public function setDataType($dataType)
     {
-        $this->idrefName = $idrefName;
+        $this->dataType = $dataType;
         return $this;
     }
 
-    public function setIdrefLabel($idrefLabel)
+    public function setDataTypeLabel($dataTypeLabel)
     {
-        $this->idrefLabel = $idrefLabel;
+        $this->dataTypeLabel = $dataTypeLabel;
         return $this;
     }
 
@@ -33,17 +33,18 @@ class Idref extends AbstractDataType
         return new IdRefSuggestAll(
             $this->services->get('Omeka\HttpClient'),
             $this->services->get('Omeka\Connection'),
+            $this->dataType,
             $this->idrefUrl
         );
     }
 
     public function getName()
     {
-        return $this->idrefName;
+        return $this->dataType;
     }
 
     public function getLabel()
     {
-        return $this->idrefLabel;
+        return $this->dataTypeLabel;
     }
 }

@@ -72,8 +72,8 @@ class IdRefDataTypeFactory implements FactoryInterface
     {
         $dataType = new IdRef($services);
         return $dataType
-            ->setIdrefName($requestedName)
-            ->setIdrefLabel($this->types[$requestedName]['label'])
+            ->setDataType($requestedName)
+            ->setDataTypeLabel($this->types[$requestedName]['label'])
             ->setIdrefUrl($this->types[$requestedName]['url'])
         ;
     }
