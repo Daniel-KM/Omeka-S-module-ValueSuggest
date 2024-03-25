@@ -1,19 +1,26 @@
 <?php
 namespace ValueSuggest\Suggester\Geonames;
 
-use ValueSuggest\Suggester\SuggesterInterface;
+use Doctrine\DBAL\Connection;
 use Laminas\Http\Client;
+use ValueSuggest\Suggester\SuggesterInterface;
 
 class GeonamesSuggest implements SuggesterInterface
 {
     /**
-     * @var Client
+     * @var \Laminas\Http\Client
      */
     protected $client;
 
-    public function __construct(Client $client)
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
+    protected $connection;
+
+    public function __construct(Client $client, Connection $connection)
     {
         $this->client = $client;
+        $this->connection = $connection;
     }
 
     /**
@@ -41,8 +48,11 @@ class GeonamesSuggest implements SuggesterInterface
         }
 
         // Parse the JSON response.
-        $suggestions = [];
+        // Count the uris, checking the result key.
         $results = json_decode($response->getBody(), true);
+        $uris = [];
+        $values = [];
+        $infos = [];
         foreach ($results['geonames'] as $result) {
             $info = [];
             if (isset($result['fcodeName']) && $result['fcodeName']) {
@@ -57,12 +67,30 @@ class GeonamesSuggest implements SuggesterInterface
             if (isset($result['population']) && $result['population']) {
                 $info[] = sprintf('Population: %s', number_format($result['population']));
             }
+            $uri = sprintf('http://www.geonames.org/%s', $result['geonameId']);
+            $uris[$uri] = 0;
+            $values[$uri] = $result['name'];
+            $infos[$uri] = implode("\n", $info);
+        }
+
+        $sql = <<<'SQL'
+SELECT `value`.`uri`, COUNT(`value`.`uri`)
+FROM `value`
+WHERE `value`.`uri` IN (:uris)
+GROUP BY `value`.`uri`
+;
+SQL;
+        $totals = $this->connection->executeQuery($sql, ['uris' => array_keys($uris)], ['uris' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY])->fetchAllKeyValue();
+
+        $uris = array_replace($uris, array_map('intval', $totals));
+
+        $suggestions = [];
+        foreach ($uris as $uri => $count) {
             $suggestions[] = [
-                'value' => $result['name'],
+                'value' => sprintf('%s (%s)', $values[$uri], $count),
                 'data' => [
-                    // The geonames uri ends with a "/".
-                    'uri' => sprintf('http://www.geonames.org/%s/', $result['geonameId']),
-                    'info' => implode("\n", $info),
+                    'uri' => $uri,
+                    'info' => $infos[$uri],
                 ],
             ];
         }
