@@ -60,7 +60,8 @@ class GeonamesSuggest implements SuggesterInterface
             $suggestions[] = [
                 'value' => $result['name'],
                 'data' => [
-                    'uri' => sprintf('http://www.geonames.org/%s', $result['geonameId']),
+                    // The geonames uri ends with a "/".
+                    'uri' => sprintf('http://www.geonames.org/%s/', $result['geonameId']),
                     'info' => implode("\n", $info),
                 ],
             ];
