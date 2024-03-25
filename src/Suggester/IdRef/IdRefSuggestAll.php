@@ -2,24 +2,34 @@
 
 namespace ValueSuggest\Suggester\IdRef;
 
-use ValueSuggest\Suggester\SuggesterInterface;
+use Doctrine\DBAL\Connection;
 use Laminas\Http\Client;
+use ValueSuggest\Suggester\SuggesterInterface;
 
 class IdRefSuggestAll implements SuggesterInterface
 {
     /**
-     * @var Client
+     * @var \Laminas\Http\Client
      */
     protected $client;
+
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
+    protected $connection;
 
     /**
      * @var string
      */
     protected $url;
 
-    public function __construct(Client $client, $url)
-    {
+    public function __construct(
+        Client $client,
+        Connection $connection,
+        string $url
+    ) {
         $this->client = $client;
+        $this->connection = $connection;
         $this->url = $url;
     }
 
@@ -48,14 +58,15 @@ class IdRefSuggestAll implements SuggesterInterface
         }
 
         // Parse the JSON response.
-        $suggestions = [];
         $results = json_decode($response->getBody(), true);
 
         if (empty($results['response']['docs'])) {
             return [];
         }
 
-        // Check the result key.
+        // Count the uris, checking the result key.
+        $uris = [];
+        $values = [];
         foreach ($results['response']['docs'] as $result) {
             if (empty($result['ppn_z'])) {
                 continue;
@@ -68,10 +79,32 @@ class IdRefSuggestAll implements SuggesterInterface
             } else {
                 $value = $result['ppn_z'];
             }
+            $uri = 'https://www.idref.fr/' . $result['ppn_z'];
+            $uris[$uri] = 0;
+            $values[$uri] = $value;
+        }
+
+        if (!$uris) {
+            return [];
+        }
+
+        $sql = <<<'SQL'
+SELECT `value`.`uri`, COUNT(`value`.`uri`)
+FROM `value`
+WHERE `value`.`uri` IN (:uris)
+GROUP BY `value`.`uri`
+;
+SQL;
+        $totals = $this->connection->executeQuery($sql, ['uris' => array_keys($uris)], ['uris' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY])->fetchAllKeyValue();
+
+        $uris = array_replace($uris, array_map('intval', $totals));
+
+        $suggestions = [];
+        foreach ($uris as $uri => $count) {
             $suggestions[] = [
-                'value' => $value,
+                'value' => sprintf('%s (%s)', $values[$uri], $count),
                 'data' => [
-                    'uri' => 'https://www.idref.fr/' . $result['ppn_z'],
+                    'uri' => $uri,
                     'info' => null,
                 ],
             ];

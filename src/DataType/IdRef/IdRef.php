@@ -32,6 +32,7 @@ class Idref extends AbstractDataType
     {
         return new IdRefSuggestAll(
             $this->services->get('Omeka\HttpClient'),
+            $this->services->get('Omeka\Connection'),
             $this->idrefUrl
         );
     }
