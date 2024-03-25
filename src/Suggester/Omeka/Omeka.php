@@ -40,12 +40,12 @@ class Omeka implements SuggesterWithContextInterface
 
         switch ($this->name) {
             case 'valuesuggest:omeka:propertyResourceTemplate':
-                $qb->join('v.resource', 'r')
+                $qb->innerJoin('v.resource', 'r')
                     ->andWhere('r.resourceTemplate = :resourceTemplateId')
                     ->setParameter('resourceTemplateId', $resourceTemplateId);
                 break;
             case 'valuesuggest:omeka:propertyResourceClass':
-                $qb->join('v.resource', 'r')
+                $qb->innerJoin('v.resource', 'r')
                     ->andWhere('r.resourceClass = :resourceClassId')
                     ->setParameter('resourceClassId', $resourceClassId);
                 break;
