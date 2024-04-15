@@ -59,7 +59,7 @@ class IdRefSuggestAll implements SuggesterInterface
         }
         $url = $this->url . $query;
 
-        $response = $this->client->setUri($url)->send();
+        $response = @$this->client->setUri($url)->send();
         if (!$response->isSuccess()) {
             return [];
         }
