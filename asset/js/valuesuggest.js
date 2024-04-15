@@ -100,6 +100,7 @@ $(document).on('o:prepare-value', function(e, type, value) {
             // Prepare the value when the user selects a suggestion.
             onSelect: function(suggestion) {
                 // Set value as URI type
+                suggestion.value = suggestion.data.label ? suggestion.data.label : suggestion.value;
                 suggestInput.val(suggestion.value)
                     .attr('placeholder', suggestion.value);
                 if (suggestion.data.uri) {

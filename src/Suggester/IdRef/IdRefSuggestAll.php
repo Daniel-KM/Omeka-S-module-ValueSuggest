@@ -127,6 +127,8 @@ SQL;
                 'value' => sprintf('%s (%s)', $values[$uri], $count),
                 'data' => [
                     'uri' => $uri,
+                    'label' => $values[$uri],
+                    'count' => $count,
                     'info' => null,
                 ],
             ];
