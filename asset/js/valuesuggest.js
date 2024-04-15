@@ -100,12 +100,15 @@ $(document).on('o:prepare-value', function(e, type, value) {
             // Prepare the value when the user selects a suggestion.
             onSelect: function(suggestion) {
                 // Set value as URI type
-                suggestion.value = suggestion.data.label ? suggestion.data.label : suggestion.value;
-                suggestInput.val(suggestion.value)
-                    .attr('placeholder', suggestion.value);
+                // suggestion.value = suggestion.data.label ? suggestion.data.label : suggestion.value;
+                // suggestInput.val(suggestion.value)
+                //    .attr('placeholder', suggestion.value);
+                let val = suggestion.data.label ? suggestion.data.label : suggestion.value;
+                suggestInput.val(val)
+                    .attr('placeholder', val);
                 if (suggestion.data.uri) {
                     idInput.val(suggestion.data.uri);
-                    labelInput.val(suggestion.value);
+                    labelInput.val(val);
                     idInput.prop('disabled', false);
                     labelInput.prop('disabled', false);
                     valueInput.prop('disabled', true);
@@ -117,7 +120,7 @@ $(document).on('o:prepare-value', function(e, type, value) {
                 } else {
                     idInput.val('');
                     labelInput.val('');
-                    valueInput.val(suggestion.value);
+                    valueInput.val(val);
                     idInput.prop('disabled', true);
                     labelInput.prop('disabled', true);
                     valueInput.prop('disabled', false);
