@@ -100,11 +100,13 @@ SELECT `value`.`uri`, COUNT(`value`.`uri`)
 FROM `value`
 WHERE `value`.`uri` IN (:uris)
 GROUP BY `value`.`uri`
+ORDER BY COUNT(`value`.`uri`) DESC
 ;
 SQL;
         $totals = $this->connection->executeQuery($sql, ['uris' => array_keys($uris)], ['uris' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY])->fetchAllKeyValue();
 
-        $uris = array_replace($uris, array_map('intval', $totals));
+        // Keep sort by most used uris first.
+        $uris = array_map('intval', $totals) + $uris;
 
         if ($this->dataType === 'valuesuggest:idref:subject' || $this->dataType === 'valuesuggest:idref:rameau') {
             $main = [];
@@ -116,7 +118,7 @@ SQL;
                     $main[$uri] = $uris[$uri];
                 }
             }
-            $uris = $main + $sub;
+            $uris = $totals + $main + $sub;
         }
 
         $suggestions = [];
