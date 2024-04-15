@@ -28,7 +28,7 @@ class IdRefDataTypeFactory implements FactoryInterface
         ],
         'valuesuggest:idref:subject' => [
             'label' => 'IdRef: Subjects', // @translate
-            'url' => 'https://www.idref.fr/Sru/Solr?wt=json&version=2.2&start=&rows=1000&indent=on&fl=id,ppn_z,affcourt_z,&q=subjectheading_t%3A',
+            'url' => 'https://www.idref.fr/Sru/Solr?wt=json&version=2.2&start=&rows=1000&indent=on&fl=id,ppn_z,affcourt_z&q=subjectheading_t%3A',
         ],
         'valuesuggest:idref:rameau' => [
             'label' => 'IdRef: Subjects Rameau', // @translate
