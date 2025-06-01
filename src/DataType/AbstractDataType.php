@@ -100,7 +100,7 @@ abstract class AbstractDataType extends BaseAbstractDataType implements DataType
     public function render(PhpRenderer $view, ValueRepresentation $value)
     {
         if ($value->uri()) {
-            if ('' !== trim($value->value())) {
+            if ('' !== trim((string) $value->value())) {
                 return $view->hyperlink($value->value(), $value->uri(), ['class' => 'uri-value-link']);
             }
             return $view->hyperlink($value->uri(), $value->uri(), ['class' => 'uri-value-link']);
