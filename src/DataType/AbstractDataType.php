@@ -111,16 +111,19 @@ abstract class AbstractDataType extends BaseAbstractDataType implements DataType
     public function getJsonLd(ValueRepresentation $value)
     {
         $jsonLd = [];
-        if ($value->uri()) {
-            $jsonLd['@id'] = $value->uri();
-            if ('' !== trim((string) $value->value())) {
-                $jsonLd['o:label'] = $value->value();
+        $uri = $value->uri();
+        $val = $value->value();
+        $lang = $value->lang();
+        if ($uri) {
+            $jsonLd['@id'] = $uri;
+            if ('' !== trim((string) $val)) {
+                $jsonLd['o:label'] = $val;
             }
         } else {
-            $jsonLd['@value'] = $value->value();
+            $jsonLd['@value'] = $val;
         }
-        if ($value->lang()) {
-            $jsonLd['@language'] = $value->lang();
+        if ($lang) {
+            $jsonLd['@language'] = $lang;
         }
         return $jsonLd;
     }
